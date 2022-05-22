@@ -108,10 +108,15 @@ namespace Draw.Rodeo.Server.Hubs
                 await _Hub.GuesserIsCorrect(Context.ConnectionId);
                 string lobbyID = await _Hub.GetLobbyID(Context.ConnectionId);
                 await NotifyPlayerListChanged(lobbyID);
-                await Clients.Client(Context.ConnectionId).SendAsync("MessageFromSelf", message);
-                await Clients.Client(Context.ConnectionId).SendAsync("GuessedCorrectly", message);
 
+                PlayerInfo playerInfo = await _Hub.GetPlayerInfo(Context.ConnectionId);
+                MessageInfo messageInfo = new MessageInfo() { Message = message, Player = playerInfo };
+                await Clients.Client(Context.ConnectionId).SendAsync("MessageFromSelf", messageInfo);
+                await Clients.Client(Context.ConnectionId).SendAsync("GuessedCorrectly", message);
+                //string currentword = await _Hub.curr
+                //await Clients.Clients(connection).SendAsync("UpdateDisplayWord", currentWord);
                 //TODO what if they are the last to guess correctly
+                //await StartNextRoundOrTurn(lobbyID);
                 return;
             }
 
@@ -133,9 +138,25 @@ namespace Draw.Rodeo.Server.Hubs
             return true;
         }
 
-        public async Task StartNextRoundOrTurnOrEndGame(string lobbyID)
+        public async Task StartNextRoundOrTurn(string lobbyID)
         {
+            //TODO WELLL:::::
+            List<string> connections = await _Hub.GetLobbyConnections(Context.ConnectionId);
+            foreach (var connection in connections)
+                await Clients.Client(connection).SendAsync("ShowTurnResult");
+            
+            string drawer = await _Hub.GetDrawerConnection(Context.ConnectionId);
 
+            if(await _Hub.IsLastInRound(drawer))
+            {
+                await _Hub.StartNextRound(lobbyID);
+            }
+            else
+            {
+                await _Hub.StartNextTurn(lobbyID);
+            }
+
+            await NotifyNewRoundOrTurn();
         }
 
         private async Task NotifyNewRoundOrTurn()

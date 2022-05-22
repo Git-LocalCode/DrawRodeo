@@ -44,6 +44,16 @@ namespace Draw.Rodeo.Server.Services
             await _LM.StartGame(lobbyID);
         }
 
+        public async Task StartNextTurn(string lobbyID)
+        {
+            await _LM.NextTurn(lobbyID);
+        }
+
+        public async Task StartNextRound(string lobbyID)
+        {
+            await _LM.NextRound(lobbyID);
+        }
+
         public async Task GuesserIsCorrect(string connectionID)
         {
             string lobbyID = await _LM.GetLobbyID(connectionID);
@@ -77,6 +87,11 @@ namespace Draw.Rodeo.Server.Services
         {
             string lobbyID = await _LM.GetLobbyID(connectionID);
             return await _LM.IsGameActive(lobbyID);
+        }
+
+        public async Task<bool> IsLastInRound(string connectionID)
+        {
+            return await _LM.IsLastInTurnOrder(connectionID);
         }
 
         public async Task<string> GetDrawerConnection(string connectionID)

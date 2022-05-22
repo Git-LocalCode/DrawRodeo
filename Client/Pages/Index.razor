@@ -19,6 +19,9 @@
         break;
 }
 
+<MudMessageBox @ref="_Score" Title="Score" YesText="Ok">
+    <MudText>Hello World!</MudText>
+</MudMessageBox>
 
 @code
 {
@@ -33,6 +36,7 @@
     private HubConnection _Hub;
 
     private Login _Login;
+    private MudMessageBox _Score;
 
     protected override async Task OnInitializedAsync()
     {
@@ -154,6 +158,11 @@
             });
 
             StateHasChanged();
+        });
+
+        _Hub.On("ShowTurnResult", () =>
+        {
+            _Score.Show();
         });
 
         await _Hub.StartAsync();

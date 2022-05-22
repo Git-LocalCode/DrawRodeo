@@ -6,9 +6,26 @@
         <div Style="height:480px; overflow-y:auto; overflow-x:hidden">
             @foreach (ScoreCardInfo player in Players)
             {
-                <MudPaper Class="pa-4 ma-2 mud-elevation-20" Style="@($"background:{Colors.Grey.Darken2}")">
+                <MudPaper Class="pa-4 ma-2 mud-elevation-20" Style="@($"background:{Colors.Grey.Darken2};")">
                     <MudStack Row="true" AlignItems="AlignItems.Center">
-                        <img src="@player.Score.Player.Avatar" style="height:50px; width:50px"/>
+
+                        @if(player.IsCurrentDrawer)
+                        {
+                            <MudBadge Icon="@Icons.Material.Outlined.Brush" Color="Color.Warning" Overlap="true" Bordered="true" Class="mx-6 my-4">
+                                <img src="@player.Score.Player.Avatar" style="height:50px; width:50px"/>
+                            </MudBadge>
+                        }
+                        else if(player.HasGuessedCorrectly)
+                        {
+                            <MudBadge Icon="@Icons.Material.Outlined.ThumbUp" Color="Color.Primary" Overlap="true" Bordered="true" Class="mx-6 my-4">
+                                <img src="@player.Score.Player.Avatar" style="height:50px; width:50px"/>
+                            </MudBadge>
+                        }
+                        else
+                        {
+                            <img src="@player.Score.Player.Avatar" style="height:50px; width:50px"/>
+                        }
+
                         @if(player.IsCurrentPlayer)
                         {
                             <MudText Typo="Typo.h5" Color="Color.Warning" Style="margin-auto">@player.Score.Player.Name</MudText>
