@@ -210,6 +210,14 @@ namespace Draw.Rodeo.Server.Services
             return (100 * _Lobbies[lobbyID].ConnectionsThatHaveGuessedCorrectly.Count) / _Lobbies[lobbyID].Connections.Count;
         }
 
+        public async Task<int> GetTurnDuration(string lobbyID)
+        {
+            if (IsIllegalID(lobbyID) || !DoesLobbyExist(lobbyID))
+                return 60;
+
+            return _Lobbies[lobbyID].Rounds.TurnDuration;
+        }
+
         public async Task<string> GetCurrentDrawer(string lobbyID)
         {
             if (IsIllegalID(lobbyID) || !DoesLobbyExist(lobbyID))
@@ -239,15 +247,21 @@ namespace Draw.Rodeo.Server.Services
             if (IsIllegalID(lobbyID) || !DoesLobbyExist(lobbyID))
                 return string.Empty;
 
+            if(string.IsNullOrWhiteSpace(_Lobbies[lobbyID].DisplayedWord))
+                return string.Empty;
+
             char[] displayedWord = _Lobbies[lobbyID].DisplayedWord.ToCharArray();
             int index = _RandomGen.Next(displayedWord.Length);
 
-            while(displayedWord[index] != '_')
+            while(displayedWord[index] != '_' && displayedWord.Length < index)
             {
                 index = _RandomGen.Next(displayedWord.Length);
             }
 
-            displayedWord[index] = _Lobbies[lobbyID].CurrentWord[index];
+            if(string.IsNullOrWhiteSpace(_Lobbies[lobbyID].CurrentWord))
+                return String.Empty;
+
+            displayedWord[index] = _Lobbies[lobbyID].CurrentWord[index]; ///ERROR HERE
 
             _Lobbies[lobbyID].DisplayedWord = new string(displayedWord);
 

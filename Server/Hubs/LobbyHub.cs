@@ -15,8 +15,6 @@ namespace Draw.Rodeo.Server.Hubs
             _Word = wordManager;
         }
 
-        //TODO End of Game
-
         public override async Task OnConnectedAsync()
         {
             await _Hub.RegisterNewConnection(Context.ConnectionId);
@@ -60,6 +58,11 @@ namespace Draw.Rodeo.Server.Hubs
         {
             string displayedWord = await _Hub.GetNewDisplayName(Context.ConnectionId, wordChoice);
             await NotifyDisplayWordChange(displayedWord, wordChoice);
+            string lobbyID = await _Hub.GetLobbyID(Context.ConnectionId);
+            int turnDuration = await _Hub.GetTurnDuration(lobbyID);
+            List<string> connections = await _Hub.GetLobbyConnectionsByLobbyID(lobbyID);
+            foreach (string connection in connections)
+                await Clients.Client(connection).SendAsync("StartTimer", turnDuration);
         }
 
         public async Task StartGame(RoundInfo roundInfo)
@@ -117,12 +120,12 @@ namespace Draw.Rodeo.Server.Hubs
                 string display = await _Hub.GetDisplayWord(lobbyID);
                 string current = await _Hub.GetCurrentWord(lobbyID);
                 await NotifyDisplayWordChange(display, current);
-                
+
+                await SysMessageAll(lobbyID, $"{playerInfo.Name} has guessed correctly.");
 
                 List<string> unauth = await _Hub.GetUnauthConnectionsByLobbyID(lobbyID);
                 if(!unauth.Any())
                 {
-                    //Start new Turn
                     await _Hub.EndTurn(lobbyID);
                     await NotifyPlayerListChanged(lobbyID);
                     await StartNextRoundOrTurn(lobbyID);
@@ -132,6 +135,14 @@ namespace Draw.Rodeo.Server.Hubs
             }
 
             await MessageAll(message);
+        }
+
+        public async Task EndTurn()
+        {
+            string lobbyID = await _Hub.GetLobbyID(Context.ConnectionId);
+            await _Hub.EndTurn(lobbyID);
+            await NotifyPlayerListChanged(lobbyID);
+            await StartNextRoundOrTurn(lobbyID);
         }
 
         public async Task<bool> JoinLobby(string lobbyID)
@@ -144,6 +155,10 @@ namespace Draw.Rodeo.Server.Hubs
             await Clients.Client(Context.ConnectionId).SendAsync("LobbyID", lobbyID);
             await Clients.Client(Context.ConnectionId).SendAsync("StartGuessing");
 
+            string display = await _Hub.GetDisplayWord(lobbyID);
+            string current = await _Hub.GetCurrentWord(lobbyID);
+            await NotifyDisplayWordChange(display, current);
+
             await NotifyPlayerConnected();
             await NotifyPlayerListChanged(lobbyID);
             return true;
@@ -151,16 +166,35 @@ namespace Draw.Rodeo.Server.Hubs
 
         public async Task StartNextRoundOrTurn(string lobbyID)
         {
-            //TODO WELLL:::::
+            string word = await _Hub.GetCurrentWord(lobbyID);
             List<string> connections = await _Hub.GetLobbyConnections(Context.ConnectionId);
             foreach (var connection in connections)
-                await Clients.Client(connection).SendAsync("ShowTurnResult");
+                await Clients.Client(connection).SendAsync("ShowTurnResult", word);
             
             string drawer = await _Hub.GetDrawerConnection(Context.ConnectionId);
 
             if(await _Hub.IsLastInRound(drawer))
             {
-                await _Hub.StartNextRound(lobbyID);
+                if(await _Hub.IsLastRound(lobbyID))
+                {
+                    await _Hub.CalcFinalScore(lobbyID);
+                    await NotifyPlayerListChanged(lobbyID);
+
+                    foreach (var connection in connections)
+                        await Clients.Client(connection).SendAsync("ShowEndResult");
+
+                    await _Hub.EndGame(lobbyID);
+                    await ManageLobby(lobbyID);
+                    await NotifyPlayerListChanged(lobbyID);
+                    await NotifyDisplayWordChange("", "");
+                    await UpdateDrawing("");
+                    return;
+
+                }
+                else
+                {
+                    await _Hub.StartNextRound(lobbyID);
+                }
             }
             else
             {
@@ -168,6 +202,19 @@ namespace Draw.Rodeo.Server.Hubs
             }
             await NotifyPlayerListChanged(lobbyID);
             await NotifyNewRoundOrTurn();
+        }
+
+        public async Task ShowNextDisplayChar()
+        {
+            string lobbyID = await _Hub.GetLobbyID(Context.ConnectionId);
+            string currentDisplay = await _Hub.GetDisplayWord(lobbyID);
+
+            if (string.IsNullOrEmpty(currentDisplay) || !currentDisplay.Contains("_"))
+                return;
+
+            string display = await _Hub.NextDisplay(lobbyID);
+            string current = await _Hub.GetCurrentWord(lobbyID);
+            await NotifyDisplayWordChange(display, current);
         }
 
         private async Task NotifyNewRoundOrTurn()
@@ -277,5 +324,22 @@ namespace Draw.Rodeo.Server.Hubs
 
             await Clients.Client(Context.ConnectionId).SendAsync("MessageFromSelf", messageInfo);
         }
+
+        private async Task SysMessageAll(string lobbyID, string message)
+        {
+            List<string> connections = await _Hub.GetLobbyConnectionsByLobbyID(lobbyID);
+            foreach (string connection in connections)
+                await Clients.Client(connection).SendAsync("SysMessage", message);
+        }
+
+        private async Task ManageLobby(string lobbyID)
+        {
+            await NotifyNewManager(lobbyID);
+
+            List<string>? guessers = await _Hub.GetGuesserConnections(Context.ConnectionId);
+            foreach (string guesser in guessers)
+                await Clients.Client(guesser).SendAsync("StartGuessing");
+        }
+
     }
 }

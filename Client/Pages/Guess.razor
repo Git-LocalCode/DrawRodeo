@@ -4,9 +4,9 @@
     </MudItem>
     <MudItem xs="6">
         <MudStack Style="width:780px; margin-left:auto; margin-right:auto;">
-            <MudPaper Class="pa-4 ma-2 mud-elevation-20" Outlined="true" Style="@($"background:{Colors.Indigo.Darken4};height:80px;")">
+            <MudPaper Class="pa-4 ma-2 mud-elevation-20" Outlined="true" Style="@($"background:{Colors.Indigo.Darken4};")">
                 <MudStack>
-                    <MudText Typo="Typo.h3" Style="margin:auto; margin-bottom:6px" Color="Color.Primary">@DisplayWord</MudText>
+                    <MudText Typo="Typo.h3" Style="margin:auto; margin-bottom:6px;text-align:center" Color="Color.Primary">@DisplayWord</MudText>
                     <MudProgressLinear Value="DurationProgress" Max="TurnDuration"><MudText Typo="Typo.h5" Color="Color.Primary">@DurationProgress</MudText></MudProgressLinear>
                 </MudStack>
             </MudPaper>

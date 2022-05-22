@@ -2,6 +2,8 @@
 
 @inject NavigationManager NavigationManager
 
+@implements IDisposable
+
 @switch(_GameState)
 {
     case GameState.Login:
@@ -11,10 +13,10 @@
         <Lobby LobbyID="@_LobbyID" PlayerList="_Playerlist" OnGameStart="StartGame" Messages="_Messages" OnNewMessage="SendMessage"/>
         break;
     case GameState.Guessing:
-        <Guess LobbyID="@_LobbyID" PlayerList="_Playerlist" Messages="_Messages" OnNewMessage="SendMessage" DisplayWord="@_Displayword" Drawing="@_Drawing" DurationProgress="50" TurnDuration="90"/>
+        <Guess LobbyID="@_LobbyID" PlayerList="_Playerlist" Messages="_Messages" OnNewMessage="SendMessage" DisplayWord="@_Displayword" Drawing="@_Drawing" DurationProgress="_TurnProgress" TurnDuration="_TurnDuration"/>
         break;
     case GameState.Drawing:
-        <DrawingBoard LobbyID="@_LobbyID" PlayerList="_Playerlist" Messages="_Messages" OnNewMessage="SendMessage" DisplayWord="@_Displayword" DurationProgress="50" TurnDuration="90" OnDrawUpdate="SendDrawing" WordChoice="_WordChoice" OnWordSelected="SetWordChoice" />
+        <DrawingBoard LobbyID="@_LobbyID" PlayerList="_Playerlist" Messages="_Messages" OnNewMessage="SendMessage" DisplayWord="@_Displayword" DurationProgress="_TurnProgress" TurnDuration="_TurnDuration" OnDrawUpdate="SendDrawing" WordChoice="_WordChoice" OnWordSelected="SetWordChoice" />
         break;
 }
 
@@ -24,12 +26,25 @@
     </MessageContent>
 </MudMessageBox>
 
+<MudMessageBox @ref="_End" Title="Game Over" YesText="Ok">
+    <MessageContent>
+        <EndResult Players="_Playerlist"/>
+    </MessageContent>
+</MudMessageBox>
+
 @code
 {
     private GameState _GameState;
+    private bool _ShowNext;
+    private int _TurnDuration;
+    private int _TurnProgress;
+    private int _WordLength;
+    private int _RevealSteps;
     private string _LobbyID;
     private string _Drawing;
     private string _Displayword;
+    private string _Result;
+    private System.Timers.Timer _Timer;
     private List<string> _WordChoice;
     private List<ScoreCardInfo> _Playerlist;
     private List<MessageCardInfo> _Messages;
@@ -38,10 +53,13 @@
 
     private Login _Login;
     private MudMessageBox _Score;
+    private MudMessageBox _End;
 
     protected override async Task OnInitializedAsync()
     {
         _GameState = GameState.Login;
+        _Timer = new(1000);
+        _Timer.Elapsed += (x, e) => CountDown();
         _Playerlist = new();
         _Messages = new();
 
@@ -154,16 +172,55 @@
                 Type = MessageType.System,
                 MessageInfo = new MessageInfo()
                 {
-                    Message = $"{guess} is correct"
+                    Message = $"{guess} is correct."
                 }
             });
 
             StateHasChanged();
         });
 
-        _Hub.On("ShowTurnResult", () =>
+        _Hub.On<string>("ShowTurnResult", (word) =>
         {
+            _Score.Close();
+            _Timer.Stop();
+            _Timer.Enabled = false;
+            _ShowNext = false;
+            _Score.Title = $"{word} was the correct answer";
             _Score.Show();
+            StateHasChanged();
+        });
+
+        _Hub.On<string>("SysMessage", message =>
+        {
+            _Messages.Add(new MessageCardInfo()
+            {
+                Type = MessageType.System,
+                MessageInfo = new MessageInfo()
+                {
+                    Message = message
+                }
+            });
+
+            StateHasChanged();
+        });
+
+        _Hub.On("ShowEndResult", () =>
+        {
+            _Score.Close();
+            _End.Show(new DialogOptions()
+            {
+                DisableBackdropClick = true
+            });
+            StateHasChanged();
+        });
+
+        _Hub.On<int>("StartTimer", duration =>
+        {
+            _Timer.Enabled = true;
+            _ShowNext = true;
+            _TurnDuration = duration;
+            _TurnProgress = duration;
+            _Timer.Start();
             StateHasChanged();
         });
 
@@ -189,5 +246,48 @@
 
     private async void SendDrawing(string drawing) => await _Hub.InvokeAsync("UpdateDrawing", drawing);
 
-    private async void SetWordChoice(string word) => await _Hub.InvokeAsync("SetWordChoice", word);
+    private async void SetWordChoice(string word)
+    {
+        _WordLength = word.Length;
+        _RevealSteps = Math.Max( _TurnDuration / ((_WordLength / 2) + 1), 5);
+        await _Hub.InvokeAsync("SetWordChoice", word);
+    }
+
+    private async void CountDown()
+    {
+        if(_TurnProgress > 0)
+        {
+            _TurnProgress--;
+
+            if(_GameState == GameState.Drawing)
+            {
+                if(_RevealSteps > 0)
+                {
+                    _RevealSteps--;
+                }
+                else
+                {
+                    if(_ShowNext)
+                        await _Hub.InvokeAsync("ShowNextDisplayChar");
+                    _RevealSteps = _TurnDuration / ((_WordLength / 2) + 1);
+                }
+            }
+        }
+        else
+        {
+            _Timer.Stop();
+
+            if(_GameState == GameState.Drawing)
+            {
+                await _Hub.InvokeAsync("EndTurn");
+            }
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        _Timer.Dispose();
+    }
 }

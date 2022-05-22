@@ -13,8 +13,6 @@ namespace Draw.Rodeo.Server.Services
             _PM = playerManager;
         }
 
-        //TODO AssignScores SHow them GUIfügpjeorß
-
 #pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
 
         public async Task RegisterNewConnection(string connectionID)
@@ -56,6 +54,16 @@ namespace Draw.Rodeo.Server.Services
         public async Task StartNextRound(string lobbyID)
         {
             await _LM.NextRound(lobbyID);
+            List<string> connections = await _LM.GetAllLobbyConnections(lobbyID);
+            foreach (string connection in connections)
+                await _PM.IncreaseScore(connection);
+        }
+
+        public async Task CalcFinalScore(string lobbyID)
+        {
+            List<string> connections = await _LM.GetAllLobbyConnections(lobbyID);
+            foreach (string connection in connections)
+                await _PM.IncreaseScore(connection);
         }
 
         public async Task GuesserIsCorrect(string connectionID)
@@ -70,7 +78,25 @@ namespace Draw.Rodeo.Server.Services
         {
             string drawer = await _LM.GetCurrentDrawer(lobbyID);
             int guessPercent = await _LM.GetGuessPercentage(lobbyID);
+            var authCon = await _LM.GetAuthorizedConnections(lobbyID);
+            if (authCon.Count == 1)
+                return;
+
             await _PM.SetTurnScoreDrawer(drawer, guessPercent);
+        }
+
+        public async Task EndGame(string lobbyID)
+        {
+            await _LM.StopGame(lobbyID);
+
+            List<string> connections = await _LM.GetAllLobbyConnections(lobbyID);
+            foreach(string connection in connections)
+                await _PM.ResetScore(connection);
+        }
+
+        public async Task<bool> IsLastRound(string lobbyID)
+        {
+            return await _LM.IsFinalRound(lobbyID);
         }
 
         public async Task<bool> ConnectPlayer(string connectionID, string lobbyID)
@@ -103,6 +129,11 @@ namespace Draw.Rodeo.Server.Services
         public async Task<bool> IsLastInRound(string connectionID)
         {
             return await _LM.IsLastInTurnOrder(connectionID);
+        }
+
+        public async Task<int> GetTurnDuration(string lobbyID)
+        {
+            return await _LM.GetTurnDuration(lobbyID);
         }
 
         public async Task<string> GetDrawerConnection(string connectionID)
@@ -247,6 +278,11 @@ namespace Draw.Rodeo.Server.Services
         public async Task<List<string>> GetUnauthConnectionsByLobbyID(string lobbyID)
         {
             return await _LM.GetUnauthorizedConnections(lobbyID);
+        }
+
+        public async Task<string> NextDisplay(string lobbyID)
+        {
+            return await _LM.ShowNextDisplayNameChar(lobbyID);
         }
 
 #pragma warning restore CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.

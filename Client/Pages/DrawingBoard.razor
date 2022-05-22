@@ -6,9 +6,9 @@
     </MudItem>
     <MudItem xs="6">
         <MudStack Style="width:780px; margin-left:auto; margin-right:auto;">
-            <MudPaper Class="pa-4 ma-2 mud-elevation-20" Outlined="true" Style="@($"background:{Colors.Indigo.Darken4};height:80px;")">
+            <MudPaper Class="pa-4 ma-2 mud-elevation-20" Outlined="true" Style="@($"background:{Colors.Indigo.Darken4};")">
                 <MudStack>
-                    <MudText Typo="Typo.h3" Style="margin:auto; margin-bottom:6px" Color="Color.Primary">@DisplayWord</MudText>
+                    <MudText Typo="Typo.h3" Style="margin:auto; margin-bottom:6px;text-align:center" Color="Color.Primary">@DisplayWord</MudText>
                     <MudProgressLinear Value="DurationProgress" Max="TurnDuration"><MudText Typo="Typo.h5" Color="Color.Primary">@DurationProgress</MudText></MudProgressLinear>
                 </MudStack>
             </MudPaper>
@@ -30,7 +30,7 @@
         <Chat Messages="Messages" OnNewMessage="NewMessage"/>
     </MudItem>
 </MudGrid>
-<MudMessageBox @ref="_WordPicker" Title="Select a Word" >
+<MudMessageBox @ref="_WordPicker" Title="Select a Word">
    <MessageContent>
        <MudButton Variant="Variant.Outlined" @onclick="() => SendChoice(0)">
            @WordChoice[0]
@@ -137,9 +137,10 @@
     private IEnumerable<MudColor> _CustomPalette { get; set; } = new MudColor[]
     {
         Colors.Shades.Black, Colors.Grey.Darken2, Colors.Grey.Default, Colors.Grey.Lighten2, Colors.Shades.White,
-        Colors.Red.Darken4, Colors.DeepOrange.Accent4, Colors.Orange.Darken4, Colors.Orange.Accent4, Colors.Brown.Default,
-        Colors.Green.Darken4, Colors.Green.Default, Colors.LightGreen.Default, Colors.Lime.Default, Colors.Yellow.Default,
-        Colors.Purple.Darken4, Colors.DeepPurple.Default, Colors.Indigo.Default, Colors.Blue.Default, Colors.LightBlue.Default,
+        Colors.Red.Darken4, Colors.DeepOrange.Accent4, Colors.Orange.Darken4, Colors.Orange.Accent4, Colors.Amber.Lighten2,
+        Colors.Brown.Default, Colors.Brown.Lighten1, Colors.Lime.Darken3, Colors.Green.Default, Colors.Green.Darken4, 
+        Colors.LightGreen.Default, Colors.Lime.Default, Colors.LightGreen.Accent2, Colors.Yellow.Default, Colors.Purple.Darken4, 
+        Colors.DeepPurple.Default, Colors.Indigo.Default, Colors.Blue.Default, Colors.LightBlue.Default, Colors.Cyan.Accent2,
         Colors.Pink.Darken4, Colors.Pink.Default, Colors.Pink.Accent2, Colors.Purple.Accent2, Colors.Purple.Default
     };
 
@@ -177,12 +178,19 @@
         Position position = await js.InvokeAsync<Position>("eval", $"let e = document.querySelector('[_bl_{_CanvasContainer.Id}=\"\"]'); e = e.getBoundingClientRect(); e = {{ 'Left': e.x, 'Top': e.y }}; e");
         (_CanvasX, _CanvasY) = (position.Left + 3, position.Top + 3);
 
-        await _WordPicker.Show();
+        await _WordPicker.Show(new DialogOptions()
+        {
+            DisableBackdropClick = true
+        });
     }
 
     private async void OnMouseDownCanvas(MouseEventArgs e)
     {
         _IsRenderRequired = false;
+
+        Position position = await js.InvokeAsync<Position>("eval", $"let e = document.querySelector('[_bl_{_CanvasContainer.Id}=\"\"]'); e = e.getBoundingClientRect(); e = {{ 'Left': e.x, 'Top': e.y }}; e");
+        (_CanvasX, _CanvasY) = (position.Left + 3, position.Top + 3);
+
         _LastMouseX = _MouseX = e.ClientX - _CanvasX;
         _LastMouseY = _MouseY = e.ClientY - _CanvasY;
         _IsMouseDown = true;
@@ -198,7 +206,7 @@
         _LastMouseX = _MouseX = e.ClientX - _CanvasX;
         _LastMouseY = _MouseY = e.ClientY - _CanvasY;
 
-        await DrawCanvasAsync(_LastMouseX, _LastMouseY, _MouseX, _MouseY);
+        //await DrawCanvasAsync(_LastMouseX, _LastMouseY, _MouseX, _MouseY);
 
         string drawing = await _Canvas.ToDataURLAsync();
         await OnDrawUpdate.InvokeAsync(drawing);

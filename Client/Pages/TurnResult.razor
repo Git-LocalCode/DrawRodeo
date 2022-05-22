@@ -4,7 +4,14 @@
         <MudPaper>
             <MudStack Row="true">
                 <img src="@player.Score.Player.Avatar" style="height:50px; width:50px"/>
-                <MudText Typo="Typo.h5" Color="Color.Surface" Style="margin-auto">@player.Score.Player.Name</MudText>
+                @if(player.IsCurrentPlayer)
+                {
+                    <MudText Typo="Typo.h5" Color="Color.Primary" Style="margin-auto">@player.Score.Player.Name</MudText>
+                }
+                else
+                {
+                    <MudText Typo="Typo.h5" Color="Color.Surface" Style="margin-auto">@player.Score.Player.Name</MudText>
+                }
                 <MudText Typo="Typo.h5" Align="Align.Right" Style="margin:auto; margin-right:0px;" Color="Color.Info">@player.Score.TurnScore</MudText>
             </MudStack>
         </MudPaper>
