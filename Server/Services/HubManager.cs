@@ -47,6 +47,10 @@ namespace Draw.Rodeo.Server.Services
         public async Task StartNextTurn(string lobbyID)
         {
             await _LM.NextTurn(lobbyID);
+
+            List<string> connections = await _LM.GetAllLobbyConnections(lobbyID);
+            foreach(string connection in connections)
+                await _PM.IncreaseScore(connection);
         }
 
         public async Task StartNextRound(string lobbyID)
@@ -60,6 +64,13 @@ namespace Draw.Rodeo.Server.Services
             int guessPercent = await _LM.GetGuessPercentage(lobbyID);
             await _PM.IncreaseTurnScoreGuesser(connectionID, guessPercent);
             await _LM.AddConnectionAsAuth(connectionID);
+        }
+
+        public async Task EndTurn(string lobbyID)
+        {
+            string drawer = await _LM.GetCurrentDrawer(lobbyID);
+            int guessPercent = await _LM.GetGuessPercentage(lobbyID);
+            await _PM.SetTurnScoreDrawer(drawer, guessPercent);
         }
 
         public async Task<bool> ConnectPlayer(string connectionID, string lobbyID)
@@ -115,6 +126,16 @@ namespace Draw.Rodeo.Server.Services
         public async Task<string> GetLobbyID(string connectionID)
         {
             return await _LM.GetLobbyID(connectionID);
+        }
+
+        public async Task<string> GetCurrentWord(string lobbyID)
+        {
+            return await _LM.GetCurrentWord(lobbyID);
+        }
+
+        public async Task<string> GetDisplayWord(string lobbyID)
+        {
+            return await _LM.GetDisplayedWord(lobbyID);
         }
 
         /// <summary>

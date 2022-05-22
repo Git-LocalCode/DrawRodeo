@@ -96,10 +96,12 @@ namespace Draw.Rodeo.Server.Services
             if (IsIllegalID(lobbyID) || !DoesLobbyExist(lobbyID))
                 return;
 
-            _Lobbies[lobbyID].CurrentDrawing = _Lobbies[lobbyID].Connections
-                                                                .SkipWhile(id => id != _Lobbies[lobbyID].CurrentDrawing)
-                                                                .Skip(1)
-                                                                .First();
+            string drawer = _Lobbies[lobbyID].CurrentDrawer;
+            string nextDrawer = _Lobbies[lobbyID].Connections.SkipWhile(id => id != drawer)
+                                                             .Skip(1)
+                                                             .First();
+            _Lobbies[lobbyID].CurrentDrawer = nextDrawer;
+
             ResetDrawingState(lobbyID);
             ResetAuthorizedConnections(lobbyID);
         }
@@ -296,7 +298,6 @@ namespace Draw.Rodeo.Server.Services
 
         private void ResetDrawingState(string lobbyID)
         {
-            _Lobbies[lobbyID].CurrentDrawing = string.Empty;
             _Lobbies[lobbyID].CurrentWord = string.Empty;
         }
 

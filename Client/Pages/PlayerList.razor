@@ -4,7 +4,7 @@
     </MudPaper>
     <MudPaper Class="pa-4 ma-2 mud-elevation-20" Outlined="true" Style="@($"background:{Colors.Indigo.Darken4}; height:520px")">
         <div Style="height:480px; overflow-y:auto; overflow-x:hidden">
-            @foreach (ScoreCardInfo player in Players)
+            @foreach (ScoreCardInfo player in Players.OrderByDescending(x => x.Score.Score).ToList())
             {
                 <MudPaper Class="pa-4 ma-2 mud-elevation-20" Style="@($"background:{Colors.Grey.Darken2};")">
                     <MudStack Row="true" AlignItems="AlignItems.Center">

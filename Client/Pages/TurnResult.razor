@@ -1,0 +1,17 @@
+﻿<MudStack>
+    @foreach(ScoreCardInfo player in Players.OrderByDescending(x => x.Score.TurnScore).ToList())
+    {
+        <MudPaper>
+            <MudStack Row="true">
+                <img src="@player.Score.Player.Avatar" style="height:50px; width:50px"/>
+                <MudText Typo="Typo.h5" Color="Color.Surface" Style="margin-auto">@player.Score.Player.Name</MudText>
+                <MudText Typo="Typo.h5" Align="Align.Right" Style="margin:auto; margin-right:0px;" Color="Color.Info">@player.Score.TurnScore</MudText>
+            </MudStack>
+        </MudPaper>
+    }
+</MudStack>
+
+@code {
+    [Parameter]
+    public List<ScoreCardInfo> Players { get; set; }
+}

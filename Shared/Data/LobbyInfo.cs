@@ -3,7 +3,6 @@
     public class LobbyInfo
     {
         public string CurrentDrawer { get; set; }
-        public string CurrentDrawing { get; set; }
         public string CurrentWord { get; set; }
         public string DisplayedWord { get; set; }
         public RoundInfo Rounds { get; set; }
@@ -13,7 +12,6 @@
         public LobbyInfo()
         {
             CurrentDrawer = string.Empty;
-            CurrentDrawing = string.Empty;
             CurrentWord = string.Empty;
             DisplayedWord = string.Empty;
             Rounds = new();

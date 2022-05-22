@@ -1,6 +1,5 @@
 ﻿@page "/"
 
-
 @inject NavigationManager NavigationManager
 
 @switch(_GameState)
@@ -20,7 +19,9 @@
 }
 
 <MudMessageBox @ref="_Score" Title="Score" YesText="Ok">
-    <MudText>Hello World!</MudText>
+    <MessageContent>
+        <TurnResult Players="_Playerlist"/>
+    </MessageContent>
 </MudMessageBox>
 
 @code
@@ -163,6 +164,7 @@
         _Hub.On("ShowTurnResult", () =>
         {
             _Score.Show();
+            StateHasChanged();
         });
 
         await _Hub.StartAsync();

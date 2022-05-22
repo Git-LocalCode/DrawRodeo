@@ -113,10 +113,21 @@ namespace Draw.Rodeo.Server.Hubs
                 MessageInfo messageInfo = new MessageInfo() { Message = message, Player = playerInfo };
                 await Clients.Client(Context.ConnectionId).SendAsync("MessageFromSelf", messageInfo);
                 await Clients.Client(Context.ConnectionId).SendAsync("GuessedCorrectly", message);
-                //string currentword = await _Hub.curr
-                //await Clients.Clients(connection).SendAsync("UpdateDisplayWord", currentWord);
-                //TODO what if they are the last to guess correctly
-                //await StartNextRoundOrTurn(lobbyID);
+
+                string display = await _Hub.GetDisplayWord(lobbyID);
+                string current = await _Hub.GetCurrentWord(lobbyID);
+                await NotifyDisplayWordChange(display, current);
+                
+
+                List<string> unauth = await _Hub.GetUnauthConnectionsByLobbyID(lobbyID);
+                if(!unauth.Any())
+                {
+                    //Start new Turn
+                    await _Hub.EndTurn(lobbyID);
+                    await NotifyPlayerListChanged(lobbyID);
+                    await StartNextRoundOrTurn(lobbyID);
+                }
+
                 return;
             }
 
@@ -155,7 +166,7 @@ namespace Draw.Rodeo.Server.Hubs
             {
                 await _Hub.StartNextTurn(lobbyID);
             }
-
+            await NotifyPlayerListChanged(lobbyID);
             await NotifyNewRoundOrTurn();
         }
 
