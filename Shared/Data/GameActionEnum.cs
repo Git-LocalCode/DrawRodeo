@@ -12,6 +12,7 @@ namespace Draw.Rodeo.Shared.Data
         NewRoundOrTurn,
         NewLobbyLeader,
         LobbyRemoved,
-        PlayerDisconnected
+        PlayerDisconnected,
+        EndTurn
     }
 }

@@ -16,7 +16,7 @@
         <Guess LobbyID="@_LobbyID" PlayerList="_Playerlist" Messages="_Messages" OnNewMessage="SendMessage" DisplayWord="@_Displayword" Drawing="@_Drawing" DurationProgress="_TurnProgress" TurnDuration="_TurnDuration"/>
         break;
     case GameState.Drawing:
-        <DrawingBoard LobbyID="@_LobbyID" PlayerList="_Playerlist" Messages="_Messages" OnNewMessage="SendMessage" DisplayWord="@_Displayword" DurationProgress="_TurnProgress" TurnDuration="_TurnDuration" OnDrawUpdate="SendDrawing" WordChoice="_WordChoice" OnWordSelected="SetWordChoice" />
+        <DrawingBoard @ref="_DrawingBoard" LobbyID="@_LobbyID" PlayerList="_Playerlist" Messages="_Messages" OnNewMessage="SendMessage" DisplayWord="@_Displayword" DurationProgress="_TurnProgress" TurnDuration="_TurnDuration" OnDrawUpdate="SendDrawing" WordChoice="_WordChoice" OnWordSelected="SetWordChoice" />
         break;
 }
 
@@ -36,6 +36,7 @@
 {
     private GameState _GameState;
     private bool _ShowNext;
+    private bool _DrawingWasSend;
     private int _TurnDuration;
     private int _TurnProgress;
     private int _WordLength;
@@ -54,6 +55,7 @@
     private Login _Login;
     private MudMessageBox _Score;
     private MudMessageBox _End;
+    private DrawingBoard _DrawingBoard;
 
     protected override async Task OnInitializedAsync()
     {
@@ -81,6 +83,7 @@
         _Hub.On("StartGuessing", () =>
         {
             _GameState = GameState.Guessing;
+            _Drawing = Properties.Resources.EmptyCanvas;
             StateHasChanged();
         });
 
@@ -244,7 +247,11 @@
 
     private async void SendMessage(string message) => await _Hub.InvokeAsync("SendMessage", message);
 
-    private async void SendDrawing(string drawing) => await _Hub.InvokeAsync("UpdateDrawing", drawing);
+    private async void SendDrawing(string drawing)
+    {
+        _DrawingWasSend = true;
+        await _Hub.InvokeAsync("UpdateDrawing", drawing);
+    }
 
     private async void SetWordChoice(string word)
     {
@@ -270,6 +277,19 @@
                     if(_ShowNext)
                         await _Hub.InvokeAsync("ShowNextDisplayChar");
                     _RevealSteps = _TurnDuration / ((_WordLength / 2) + 1);
+                }
+
+                if(_DrawingWasSend)
+                {
+                    _DrawingWasSend = false;
+                }
+                else
+                {
+                    if(_DrawingBoard is not null)
+                    {
+                        string drawing =  await _DrawingBoard.GetDrawing();
+                        await _Hub.InvokeAsync("UpdateDrawing", drawing);
+                    }
                 }
             }
         }

@@ -88,6 +88,7 @@
     private async void SendChoice(int i)
     {
         _WordPicker.Close();
+        _HasWordBeenChosen = true;
         await OnWordSelected.InvokeAsync(WordChoice[i]);
     }
 
@@ -134,6 +135,9 @@
     private double _LastMouseX;
     private double _LastMouseY;
 
+    private System.Timers.Timer _TimerChoice;
+    private bool _HasWordBeenChosen;
+
     private IEnumerable<MudColor> _CustomPalette { get; set; } = new MudColor[]
     {
         Colors.Shades.Black, Colors.Grey.Darken2, Colors.Grey.Default, Colors.Grey.Lighten2, Colors.Shades.White,
@@ -178,10 +182,25 @@
         Position position = await js.InvokeAsync<Position>("eval", $"let e = document.querySelector('[_bl_{_CanvasContainer.Id}=\"\"]'); e = e.getBoundingClientRect(); e = {{ 'Left': e.x, 'Top': e.y }}; e");
         (_CanvasX, _CanvasY) = (position.Left + 3, position.Top + 3);
 
+        _HasWordBeenChosen = false;
+        _TimerChoice = new System.Timers.Timer(10000);
+        _TimerChoice.Elapsed += (x, e) => ForceChoice();
+        _TimerChoice.Start();
+
         await _WordPicker.Show(new DialogOptions()
         {
             DisableBackdropClick = true
         });
+    }
+
+    private void ForceChoice()
+    {
+        if(!_HasWordBeenChosen)
+        {
+            SendChoice(0);
+        }
+
+        _TimerChoice.Stop();
     }
 
     private async void OnMouseDownCanvas(MouseEventArgs e)

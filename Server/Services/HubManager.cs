@@ -210,12 +210,13 @@ namespace Draw.Rodeo.Server.Services
                 return GameAction.NewLobbyLeader;
             }
 
-            var guessers = await _LM.GetUnauthorizedConnections(lobbyID);
-            if(guessers.All(x => x == connectionID))
-            {
-                //TODO next turn but what if last 
-                await _LM.RemovePlayer(connectionID);
-            }
+            //var guessers = await _LM.GetUnauthorizedConnections(lobbyID);
+            //if(guessers.All(x => x == connectionID))
+            //{
+            //    //TODO next turn but what if last 
+            //    await _LM.RemovePlayer(connectionID);
+            //    return GameAction.EndTurn;
+            //}
 
             await _LM.RemovePlayer(connectionID);
             return GameAction.PlayerDisconnected;
@@ -253,6 +254,13 @@ namespace Draw.Rodeo.Server.Services
         public async Task<List<string>> GetGuesserConnections(string connectionID)
         {
             string lobbyID = await _LM.GetLobbyID(connectionID);
+            List<string>? connections = await _LM.GetAllLobbyConnections(lobbyID);
+            connections.Remove(await _LM.GetCurrentDrawer(lobbyID));
+            return connections;
+        }
+
+        public async Task<List<string>> GetGuesserConnectionsByLobbyID(string lobbyID)
+        {
             List<string>? connections = await _LM.GetAllLobbyConnections(lobbyID);
             connections.Remove(await _LM.GetCurrentDrawer(lobbyID));
             return connections;

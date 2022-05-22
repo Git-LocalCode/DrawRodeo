@@ -43,7 +43,21 @@ namespace Draw.Rodeo.Server.Hubs
                     await NotifyPlayerDisconnected(lobbyID, playerInfo);
                     await NotifyPlayerListChanged(lobbyID);
                     break;
+                case GameAction.EndTurn:
+                    await NotifyPlayerDisconnected(lobbyID, playerInfo);
+                    await EndTurnByLobby(lobbyID);
+                    await StartNextRoundOrTurn(lobbyID);
+                    break;
             }
+
+            //List<string> unauth = await _Hub.GetUnauthConnectionsByLobbyID(lobbyID);
+            //if (!unauth.Any())
+            //{
+            //    await _Hub.EndTurn(lobbyID);
+            //    await NotifyPlayerListChanged(lobbyID);
+            //    await NotifyPlayerDisconnected(lobbyID, playerInfo);
+            //    await StartNextRoundOrTurn(lobbyID);
+            //}
             //TODO what if last to answer
 
             await base.OnDisconnectedAsync(exception);
@@ -70,6 +84,13 @@ namespace Draw.Rodeo.Server.Hubs
             await _Hub.SetRoundInfo(Context.ConnectionId, roundInfo);
             await _Hub.StartGame(Context.ConnectionId);
             await NotifyNewRoundOrTurn();
+
+            List<string> connections = await _Hub.GetLobbyConnections(Context.ConnectionId);
+            string drawer = await _Hub.GetDrawerConnection(Context.ConnectionId);
+            PlayerInfo player = await _Hub.GetPlayerInfo(drawer);
+
+            foreach (var connection in connections)
+                await Clients.Client(connection).SendAsync("SysMessage", $"{player.Name} is now drawing.");
         }
 
         public async Task CreateLobby()
@@ -145,6 +166,13 @@ namespace Draw.Rodeo.Server.Hubs
             await StartNextRoundOrTurn(lobbyID);
         }
 
+        public async Task EndTurnByLobby(string lobbyID)
+        {
+            await _Hub.EndTurn(lobbyID);
+            await NotifyPlayerListChanged(lobbyID);
+            await StartNextRoundOrTurn(lobbyID);
+        }
+
         public async Task<bool> JoinLobby(string lobbyID)
         {
             bool connected = await _Hub.ConnectPlayer(Context.ConnectionId, lobbyID);
@@ -167,11 +195,11 @@ namespace Draw.Rodeo.Server.Hubs
         public async Task StartNextRoundOrTurn(string lobbyID)
         {
             string word = await _Hub.GetCurrentWord(lobbyID);
-            List<string> connections = await _Hub.GetLobbyConnections(Context.ConnectionId);
+            List<string> connections = await _Hub.GetLobbyConnectionsByLobbyID(lobbyID);
             foreach (var connection in connections)
                 await Clients.Client(connection).SendAsync("ShowTurnResult", word);
             
-            string drawer = await _Hub.GetDrawerConnection(Context.ConnectionId);
+            string drawer = await _Hub.GetDrawerConnectionByLobbyID(lobbyID);
 
             if(await _Hub.IsLastInRound(drawer))
             {
@@ -201,7 +229,13 @@ namespace Draw.Rodeo.Server.Hubs
                 await _Hub.StartNextTurn(lobbyID);
             }
             await NotifyPlayerListChanged(lobbyID);
-            await NotifyNewRoundOrTurn();
+            await NotifyNewRoundOrTurnByLobby(lobbyID);
+
+            PlayerInfo player = await _Hub.GetPlayerInfo(drawer);
+
+            foreach (var connection in connections)
+                await Clients.Client(connection).SendAsync("SysMessage", $"{player.Name} is now drawing.");
+
         }
 
         public async Task ShowNextDisplayChar()
@@ -224,6 +258,17 @@ namespace Draw.Rodeo.Server.Hubs
             await Clients.Client(drawer).SendAsync("StartDrawing", wordChoice);
 
             List<string>? guessers = await _Hub.GetGuesserConnections(Context.ConnectionId);
+            foreach (string guesser in guessers)
+                await Clients.Client(guesser).SendAsync("StartGuessing");
+        }
+
+        private async Task NotifyNewRoundOrTurnByLobby(string lobbyID)
+        {
+            string drawer = await _Hub.GetDrawerConnectionByLobbyID(lobbyID);
+            List<string> wordChoice = await _Word.GetWords();
+            await Clients.Client(drawer).SendAsync("StartDrawing", wordChoice);
+
+            List<string>? guessers = await _Hub.GetGuesserConnectionsByLobbyID(lobbyID);
             foreach (string guesser in guessers)
                 await Clients.Client(guesser).SendAsync("StartGuessing");
         }
