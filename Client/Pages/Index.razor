@@ -1,0 +1,182 @@
+﻿@page "/"
+
+
+@inject NavigationManager NavigationManager
+
+@switch(_GameState)
+{
+    case GameState.Login:
+        <Login @ref="_Login" OnChangePlayerInfo="ChangePlayerInfo" OnCreateLobby="CreateLobby" OnJoinLobby="JoinLobby" />
+        break;
+    case GameState.Lobby:
+        <Lobby LobbyID="@_LobbyID" PlayerList="_Playerlist" OnGameStart="StartGame" Messages="_Messages" OnNewMessage="SendMessage"/>
+        break;
+    case GameState.Guessing:
+        <Guess LobbyID="@_LobbyID" PlayerList="_Playerlist" Messages="_Messages" OnNewMessage="SendMessage" DisplayWord="@_Displayword" Drawing="@_Drawing" DurationProgress="50" TurnDuration="90"/>
+        break;
+    case GameState.Drawing:
+        <DrawingBoard LobbyID="@_LobbyID" PlayerList="_Playerlist" Messages="_Messages" OnNewMessage="SendMessage" DisplayWord="@_Displayword" DurationProgress="50" TurnDuration="90" OnDrawUpdate="SendDrawing" WordChoice="_WordChoice" OnWordSelected="SetWordChoice" />
+        break;
+}
+
+
+@code
+{
+    private GameState _GameState;
+    private string _LobbyID;
+    private string _Drawing;
+    private string _Displayword;
+    private List<string> _WordChoice;
+    private List<ScoreCardInfo> _Playerlist;
+    private List<MessageCardInfo> _Messages;
+
+    private HubConnection _Hub;
+
+    private Login _Login;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _GameState = GameState.Login;
+        _Playerlist = new();
+        _Messages = new();
+
+        _Hub = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/lobbyHub"))
+                                         .Build();
+
+        _Hub.On<string>("LobbyID", lobbyID =>
+        {
+            _LobbyID = lobbyID;
+            StateHasChanged();
+        });
+
+        _Hub.On("StartManaging", () =>
+        {
+            _GameState = GameState.Lobby;
+            StateHasChanged();
+        });
+
+        _Hub.On("StartGuessing", () =>
+        {
+            _GameState = GameState.Guessing;
+            StateHasChanged();
+        });
+
+        _Hub.On<List<string>>("StartDrawing", (words) =>
+        {
+            _WordChoice = words;
+            _GameState = GameState.Drawing;
+            StateHasChanged();
+        });
+
+        _Hub.On<List<ScoreCardInfo>>("UpdatePlayerList", players =>
+        {
+            _Playerlist = players;
+            StateHasChanged();
+        });
+
+        _Hub.On<MessageInfo>("MessageFromSelf", message =>
+        {
+            _Messages.Add(new MessageCardInfo()
+            {
+                Type = MessageType.Self,
+                MessageInfo = message
+            });
+
+            StateHasChanged();
+        });
+
+        _Hub.On<MessageInfo>("MessageFromOther", message =>
+        {
+            _Messages.Add(new MessageCardInfo()
+            {
+                Type = MessageType.Other,
+                MessageInfo = message
+            });
+
+            StateHasChanged();
+        });
+
+        _Hub.On<PlayerInfo>("Connected", player =>
+        {
+            _Messages.Add(new MessageCardInfo()
+            {
+                Type = MessageType.System,
+                MessageInfo = new MessageInfo()
+                {
+                    Message = $"{player.Name} has joined the game."
+                }
+            });
+
+            StateHasChanged();
+        });
+
+        _Hub.On<PlayerInfo>("Disconnected", player =>
+        {
+            _Messages.Add(new MessageCardInfo()
+            {
+                Type = MessageType.System,
+                MessageInfo = new MessageInfo()
+                {
+                    Message = $"{player.Name} has left the game."
+                }
+            });
+
+            StateHasChanged();
+        });
+
+        _Hub.On<string>("UpdateDrawing", drawing =>
+        {
+            _Drawing = drawing;
+            StateHasChanged();
+        });
+
+        _Hub.On<string>("UpdateDisplayWord", word =>
+        {
+            string result = string.Empty;
+            foreach(char x in word)
+            {
+                result += x;
+                result += "⠀";
+            }
+            _Displayword = result;
+            StateHasChanged();
+        });
+
+        _Hub.On<string>("GuessedCorrectly", (guess) =>
+        {
+            _Messages.Add(new MessageCardInfo()
+            {
+                Type = MessageType.System,
+                MessageInfo = new MessageInfo()
+                {
+                    Message = $"{guess} is correct"
+                }
+            });
+
+            StateHasChanged();
+        });
+
+        await _Hub.StartAsync();
+
+        await base.OnInitializedAsync();
+    }
+
+    private async void ChangePlayerInfo(PlayerInfo playerInfo) => await _Hub.InvokeAsync("SetPlayerInfo", playerInfo);
+
+    private async void CreateLobby() => await _Hub.InvokeAsync("CreateLobby");
+
+    private async void JoinLobby(string lobbyID)
+    {
+        bool connected = await _Hub.InvokeAsync<bool>("JoinLobby", lobbyID);
+        if(!connected)
+            _Login.CannotConnectToLobby();
+    }
+
+    private async void StartGame(RoundInfo roundInfo) => await _Hub.InvokeAsync("StartGame", roundInfo);
+
+    private async void SendMessage(string message) => await _Hub.InvokeAsync("SendMessage", message);
+
+    private async void SendDrawing(string drawing) => await _Hub.InvokeAsync("UpdateDrawing", drawing);
+
+    private async void SetWordChoice(string word) => await _Hub.InvokeAsync("SetWordChoice", word);
+}

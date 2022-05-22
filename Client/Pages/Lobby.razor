@@ -1,0 +1,56 @@
+﻿
+<MudGrid>
+    <MudItem xs="3">
+        <PlayerList LobbyID="@LobbyID" Players="PlayerList" />
+    </MudItem>
+    <MudItem xs="6">
+        <MudPaper Class="pa-4 ma-2 mud-elevation-20" Outlined="true" Style="@($"background:{Colors.Indigo.Darken4}; height:520px")">
+            <MudStack Style="max-width:400px; margin-left:auto; margin-right:auto;">
+                <MudText Typo="Typo.h4" Color="Color.Primary" Style="margin-top:50px">Number of Rounds</MudText>
+                <MudSlider @bind-Value="_RoundTotal" Step="1" Min="1" Max="10" TickMarks="true" ValueLabel="true" Color="Color.Primary" Style="margin-bottom:50px"></MudSlider>
+                <MudText Typo="Typo.h4" Color="Color.Primary">Duration of Turns</MudText>
+                <MudSlider @bind-Value="_TurnDuration" Step="30" Min="30" Max="90" TickMarks="true" ValueLabel="true" Color="Color.Primary" Style="margin-bottom:50px"></MudSlider>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" @onclick="StartGame" Disabled="PlayerList.Count < 2">Start Game</MudButton>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="3">
+        <Chat Messages="Messages" OnNewMessage="NewMessage"/>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public string LobbyID { get; set; }
+
+    [Parameter]
+    public List<ScoreCardInfo> PlayerList { get; set; }
+
+    [Parameter]
+    public EventCallback<RoundInfo> OnGameStart { get; set; }
+
+    [Parameter]
+    public List<MessageCardInfo> Messages { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnNewMessage { get; set; }
+
+    private int _TurnDuration = 60;
+    private int _RoundTotal = 5;
+
+    private async void StartGame(MouseEventArgs e)
+    {
+        RoundInfo roundInfo = new()
+        {
+            CurrentRound = 1,
+            TotalRounds = _RoundTotal,
+            TurnDuration = _TurnDuration
+        };
+        await OnGameStart.InvokeAsync(roundInfo);
+    }
+
+    private async void NewMessage(string message)
+    {
+        await OnNewMessage.InvokeAsync(message);
+    }
+}

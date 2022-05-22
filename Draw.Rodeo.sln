@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32421.90
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Draw.Rodeo.Server", "Server\Draw.Rodeo.Server.csproj", "{4019E58F-2B19-4774-B311-44D810F726F7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Draw.Rodeo.Client", "Client\Draw.Rodeo.Client.csproj", "{1E6F354F-9BEC-4A20-A116-C23522196C74}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Draw.Rodeo.Shared", "Shared\Draw.Rodeo.Shared.csproj", "{84C924CB-992E-47A4-921B-4B3391C93E4B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4019E58F-2B19-4774-B311-44D810F726F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4019E58F-2B19-4774-B311-44D810F726F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4019E58F-2B19-4774-B311-44D810F726F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4019E58F-2B19-4774-B311-44D810F726F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E6F354F-9BEC-4A20-A116-C23522196C74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E6F354F-9BEC-4A20-A116-C23522196C74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E6F354F-9BEC-4A20-A116-C23522196C74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E6F354F-9BEC-4A20-A116-C23522196C74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84C924CB-992E-47A4-921B-4B3391C93E4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84C924CB-992E-47A4-921B-4B3391C93E4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84C924CB-992E-47A4-921B-4B3391C93E4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84C924CB-992E-47A4-921B-4B3391C93E4B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B4922BD6-D6B1-46F8-905B-CFDDE10637D0}
+	EndGlobalSection
+EndGlobal

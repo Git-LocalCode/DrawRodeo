@@ -1,0 +1,59 @@
+﻿ <MudStack>
+    <MudPaper Class="pa-4 ma-2 mud-elevation-20" Outlined="true" Style="@($"background:{Colors.Indigo.Darken4};height:520px")">
+        <div Style="height:480px; overflow-y:auto; display:flex; flex-direction:column-reverse; overflow-x:hidden">
+            @foreach(MessageCardInfo message in Messages.Reverse<MessageCardInfo>())
+            {
+                if(message.Type == MessageType.Self)
+                {
+                    <MudStack Style="margin:10px;">
+                        <MudText Align="Align.Right">@message.MessageInfo.Player.Name</MudText>
+                        <MudStack Row="true" >
+                            <MudPaper Style="padding:5px; margin-left:auto">@message.MessageInfo.Message</MudPaper>
+                            <MudAvatar Style="height:30px; width:30px" Image="@message.MessageInfo.Player.Avatar"/>
+                        </MudStack>
+                    </MudStack>
+                }
+                else if (message.Type == MessageType.Other)
+                {
+                    <MudStack Style="margin:10px;">
+                        <MudText>@message.MessageInfo.Player.Name</MudText>
+                        <MudStack Row="true">
+                            <MudAvatar Style="height:30px; width:30px" Image="@message.MessageInfo.Player.Avatar"/>
+                            <MudPaper Style="padding:5px;">@message.MessageInfo.Message</MudPaper>
+                        </MudStack>
+                    </MudStack>
+                }
+                else if(message.Type == MessageType.System)
+                {
+                    <MudStack Style="margin:10px;" Row="true">
+                        <MudText Color="Color.Warning">
+                            @message.MessageInfo.Message
+                        </MudText>
+                    </MudStack>
+                }
+            }
+        </div>
+    </MudPaper>
+    <MudPaper Class="pa-4 ma-2 mud-elevation-20" Outlined="true" Style="@($"background:{Colors.Indigo.Darken4}; height:80px;")">
+        <MudTextField @bind-Value="_InputText" Variant="Variant.Text" AdornmentColor="Color.Info" Style="color:white;margin-top:auto; margin-bottom:auto;" @onkeyup="SendInputText"/>
+    </MudPaper>
+</MudStack>
+@code {
+    [Parameter]
+    public List<MessageCardInfo> Messages { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnNewMessage { get; set; }
+
+    private string _InputText;
+
+    private async void SendInputText(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(_InputText))
+        {
+            await OnNewMessage.InvokeAsync(_InputText);
+            _InputText = string.Empty;
+            StateHasChanged();
+        }
+    }
+}

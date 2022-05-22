@@ -1,0 +1,119 @@
+﻿<MudStack Style="max-width:500px; margin-left:auto; margin-right:auto;">
+        
+    <div><MudImage Src="/images/Draw.Rodeo.png" Width="500" /></div>
+    <MudPaper Class="pa-4 ma-2 mud-elevation-20" Outlined="true" Style="@($"background:{Colors.Indigo.Darken4};")">
+        <MudStack>
+            <MudTextField @ref="_NameInput" @bind-Value="_PlayerName" Variant="Variant.Filled" Label="Name" Style="@($"background:{Colors.Indigo.Darken4}; color:{Colors.Shades.White}")" MaxLength="20" Error="_IsNameError" />
+            <MudCarousel TData="object" Style="height:200px;" ShowArrows="true" ShowBullets="false" AutoCycle="false" DelimitersColor="MudBlazor.Color.Warning" @bind-SelectedIndex="_SelectedIconIndex">
+                @for(int i = 1; i <= 20; i++)
+                {
+                    int local = i;
+                    <MudCarouselItem>
+                        <div class="d-flex" style="height:100%">
+                            <img src="@($"/images/icons/{local}.png")" class="mx-auto my-auto" style="height:100%;"/>
+                        </div>
+                    </MudCarouselItem>
+                }
+            </MudCarousel>
+            @if(!_DoesLobbyExist)
+            {
+                <MudText Color="Color.Error">LobbyID does not exist</MudText>
+            }
+            <MudStack Row="true" Style="margin-left:auto; margin-right:auto; margin-top:100px">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="()=>CreateLobby()" Disabled="@_IsButtonPressed">Create Lobby</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="()=>JoinLobby()" Disabled="@_IsButtonPressed">Join Lobby</MudButton>
+            </MudStack>
+        </MudStack>
+    </MudPaper>
+</MudStack>
+
+<MudMessageBox @ref="_JoinLobbyDialog" Title="Join Lobby" CancelText="Cancel">
+    <MessageContent>
+        <MudTextField @ref="_LobbyInput" @bind-Value="_LobbyID" Label="Lobby ID" MaxLength="5"/>
+    </MessageContent>
+    <YesButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" >Join!</MudButton>
+    </YesButton>
+</MudMessageBox>
+
+@code {
+    [Parameter]
+    public EventCallback<PlayerInfo> OnChangePlayerInfo { get; set; }
+
+    [Parameter]
+    public EventCallback OnCreateLobby { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnJoinLobby { get; set; }
+
+    private bool _DoesLobbyExist = true;
+    private bool _IsNameError = false;
+    private bool _IsButtonPressed = false;
+    private int _SelectedIconIndex;
+    private string _LobbyID;
+    private string _PlayerName;
+
+    private MudTextField<string> _NameInput;
+    private MudTextField<string> _LobbyInput;
+    private MudMessageBox _JoinLobbyDialog;
+
+    public void CannotConnectToLobby()
+    {
+        _DoesLobbyExist = false;
+        _IsButtonPressed = false;
+        StateHasChanged();
+    }
+
+    private async void CreateLobby()
+    {
+        if (!CheckForNameInput())
+            return;
+
+        _IsButtonPressed = true;
+
+        PlayerInfo playerInfo = new()
+        {
+          Name = _PlayerName,
+          Avatar = $"/images/icons/{_SelectedIconIndex + 1}.png"
+        };
+
+        await OnChangePlayerInfo.InvokeAsync(playerInfo);
+
+        await OnCreateLobby.InvokeAsync();
+    }
+
+    private async void JoinLobby()
+    {
+        if (!CheckForNameInput())
+            return;
+
+        _IsButtonPressed = true;
+
+        bool? joinResult = await _JoinLobbyDialog.Show();
+        if (joinResult is null)
+        {
+            _IsButtonPressed = false;
+            StateHasChanged();
+            return;
+        }
+
+        PlayerInfo playerInfo = new()
+        {
+          Name = _PlayerName,
+          Avatar = $"/images/icons/{_SelectedIconIndex + 1}.png"
+        };
+
+        await OnChangePlayerInfo.InvokeAsync(playerInfo);
+
+        await OnJoinLobby.InvokeAsync(_LobbyID);
+    }
+
+    private bool CheckForNameInput()
+    {
+        if (!string.IsNullOrWhiteSpace(_PlayerName))
+            return true;
+
+        _IsNameError = true;
+        return false;
+    }
+}

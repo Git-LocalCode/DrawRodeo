@@ -1,0 +1,35 @@
+﻿<MudStack>
+    <MudPaper Class="pa-4 ma-2 mud-elevation-20" Outlined="true" Style="@($"background:{Colors.Indigo.Darken4}; height:80px")">
+        <MudText Typo="Typo.h3" Color="Color.Primary" Style="margin-auto">Lobby ID: @LobbyID</MudText>
+    </MudPaper>
+    <MudPaper Class="pa-4 ma-2 mud-elevation-20" Outlined="true" Style="@($"background:{Colors.Indigo.Darken4}; height:520px")">
+        <div Style="height:480px; overflow-y:auto; overflow-x:hidden">
+            @foreach (ScoreCardInfo player in Players)
+            {
+                <MudPaper Class="pa-4 ma-2 mud-elevation-20" Style="@($"background:{Colors.Grey.Darken2}")">
+                    <MudStack Row="true" AlignItems="AlignItems.Center">
+                        <img src="@player.Score.Player.Avatar" style="height:50px; width:50px"/>
+                        @if(player.IsCurrentPlayer)
+                        {
+                            <MudText Typo="Typo.h5" Color="Color.Warning" Style="margin-auto">@player.Score.Player.Name</MudText>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.h5" Color="Color.Surface" Style="margin-auto">@player.Score.Player.Name</MudText>
+                        }
+                        <MudText Typo="Typo.h5" Align="Align.Right" Style="margin:auto; margin-right:0px;" Color="Color.Info">@player.Score.Score</MudText>
+                    </MudStack>
+                </MudPaper>
+            }
+        </div>
+    </MudPaper>
+</MudStack>
+
+@code {
+    [Parameter]
+    public List<ScoreCardInfo> Players { get; set; }
+
+    [Parameter]
+    public string LobbyID { get; set; }
+
+}

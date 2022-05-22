@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Words" xml:space="preserve">
+    <value>professor,barber,kneel,orbit,germ,darts,dance,cape,sushi,baby-sitter,ping pong,half,swamp,macaroni,Internet,logo,rind,fireman pole,raft,wig,salmon,letter opener,cabin,fireside,cell phone charger,dent,jungle,dripping,saddle,fabric,sleep,mirror,ski goggles,point,neighborhood,applause,cliff,sponge,chess,grandpa,peasant,cruise,CD,drawback,chestnut,yolk,pilot,season,world,biscuit,bobsled,pharmacist,shampoo,swarm,moth,sneeze,deep,sunburn,pizza sauce,houseboat,password,migrate,koala,catalog,husband,darkness,shower curtain,rib,honk,landscape,water buffalo,wooly mammoth,cheerleader,cloak,birthday,nightmare,myth,wind,post office,knight,rim,think,bride,hydrogen,baguette,vitamin,tiptoe,pail,glitter,plow,retail,leak,pocket,crust,mascot,macho,hail,time machine,drain,vegetarian,bookend,taxi,foil,mast,gold,commercial,quicksand,lap,diagonal,exercise,drip,boa constrictor,handle,rubber,puppet,glue stick,bonnet,chef,plank,full,ditch,hut,whisk,avocado,zipper,dizzy,recycle,fog,bald,ceiling fan,traffic jam,firefighter,picnic,newsletter,dentist,gasoline,wedding cake,dashboard,caviar,laser,download,baggage,sandbox,hot tub,shrink ray,safe,goblin,double,wobble,coach,zoo,pen,rocket,shirt,kite,eyes,chair,cup,jacket,hippo,bird,monster,bracelet,coat,balloon,dinosaur,head,book,smile,bridge,blocks,milk,eye,oval,snowflake,broom,cheese,lion,lips,beach,cloud,bus,elephant,sunglasses,lemon,star,spoon,boat,turtle,drum,doll,ant,motorcycle,bike,pencil,bunk bed,moon,slide,hat,cat,tail,helicopter,square,Mickey Mouse,octopus,door,table,egg,bell,nose,spider,horse,finger,glasses,jar,girl,ear,lizard,flower,snowman,baby,car,bread,blanket,apple,bench,skateboard,pig,ice cream cone,feet,lollipop,heart,ears,bed,carrot,person,boy,train,truck,bug,legs,bowl,lamp,desk,purse,light,mountain,snail,basketball,orange,bear,chicken,grass,cookie,clock,ghost,spider web,ocean,monkey,shoe,dog,face,circle,water,butterfly,house,robot,mouth,branch,worm,socks,grapes,crab,banana,computer,bee,whale,seashell,snake,sun,swing,bat,pie,wheel,bunny,hand,cherry,jellyfish,tree,stairs,duck,leaf,dragon,giraffe,ball,pants,ring,airplane,candle,cow,cupcake,football,hamburger,bone,corn,zero,riddle,soul,president,mine car,landfill,expired,archaeologist,exponential,password,overture,lyrics,pride,translate,blacksmith,stockholder,positive,gallop,vision,observatory,random,carat,ice fishing,fragment,publisher,telepathy,drift,handful,champion,intern,default,brunette,slump,armada,flotsam,pomp,century,mooch,freshwater,trademark,infection,siesta,parody,chaos,tournament,aristocrat,blueprint,stout,upgrade,quarantine,population,kilogram,brainstorm,inquisition,protestant,tutor,cartography,rainwater,coast,trip,cobra,bottle,curtains,soap,mailman,banana peel,railroad,lipstick,knee,broccoli,face,tape,hot dog,shadow,lawnmower,table,trash can,rainbow,soda,laundry basket,city,match,hill,violin,mailbox,tire,pumpkin,zebra,shelf,eel,beach,salt and pepper,ladder,blue jeans,address,radish,sea turtle,dress,lid,family,ladybug,window,cheeseburger,yo-yo,frog,whistle,glove,magazine,church,chameleon,boot,tongue,hospital,thief,smile,potato,hairbrush,computer,school,heel,pogo stick,tent,cucumber,fox,sloth,sprinkler,garden,wing,brain,net,song,drums,bagel,baby,starfish,corner,carpet,bicycle,strawberry,horse,rug,puzzle,snowball,aircraft,gate,sidewalk,pan,marshmallow,bell pepper,watering can,plate,jungle,camera,forehead,towel,surfboard,coin,watch,chin,key,blimp,cowboy,picture frame,piano,lake,pirate,box,paw,toast,swimming pool,silverware,salt,tissue,shovel,hoof,dominoes,roller blading,base,rose,spider web,hopscotch,spoon,elbow,pinwheel,french fries,log,doorknob,bag,attic,beaver,unicorn,seahorse,scar,snowflake,eraser,jelly,battery,easel,jar,barn,bathtub,paperclip,photograph,maid,ring,outside,vase,electrical outlet,room,birthday cake,map,coconut,spool,chocolate chip cookie,muffin,ski,stapler,t-shirt,lock,braid,seesaw,half,paper,pizza,dock,shoulder,lunchbox,spring,treasure,queen,fang,round,dragonfly,newspaper,mail,knot,tusk,umbrella,ticket,lawn mower,shark,neck,toothbrush,hook,wax,mop,beehive,forest,money,napkin,wreath,music,quilt,chain,backbone,sheep,banana split,baseball,basket,printer,cello,circus,whisk,dimple,hummingbird,nest,wrench,fork,garage,stump,pine tree,saw,stove,toaster,park,hula hoop,garbage,peanut,hair,bib,spare,light switch,king,headband,America,nature,milk,refrigerator,mattress,tennis,popsicle,stomach,pajamas,password,nail,stamp,nut,palace,gingerbread man,dog leash,wood,mitten,rhinoceros,popcorn,teeth,stingray,happy,onion,wall,pen,alarm clock,door,crayon,swing,maze,jewelry,golf,gift,bowtie,fur,gumball,pear,tiger,peach,washing machine,doormat,desk,hockey,crack,cast,flashlight,dustpan,scissors,skate,wallet,sink,coal,brick,hug,doghouse,deep,pelican,page,lightsaber,toe,rake,tulip,torch,teapot,bucket,trumpet,paint,hair dryer,pineapple,calendar,pretzel,candle,sailboat,storm,tank,volcano,flute,ironing board,clam,waist,catfish,top hat,skirt,astronaut,rain,button,dollar,spaceship,fishing pole,video camera,penguin,lemon,poodle,hip,roof,state,claw,clown,rocking chair,belt,airport,cheetah,spine,pond,cage,mouse,bomb,ice,cake,cockroach,batteries,fist,flamingo,purse,lighthouse,telephone,harp,eagle,electricity,lobster,cheek,shallow,suitcase,campfire,flagpole,chalk,artist,skunk,apple pie,mushroom,smoke,ship,grill,food,pencil,TV,dolphin,bathroom scale,bubble,owl,stoplight,chimney,light bulb,deer,platypus,globe,tadpole,cell phone,river,sunflower,mouth</value>
+  </data>
+</root>

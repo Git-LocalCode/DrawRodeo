@@ -1,0 +1,233 @@
+﻿@inject IJSRuntime js
+
+<MudGrid>
+    <MudItem xs="3">
+        <PlayerList LobbyID="@LobbyID" Players="PlayerList" />
+    </MudItem>
+    <MudItem xs="6">
+        <MudStack Style="width:780px; margin-left:auto; margin-right:auto;">
+            <MudPaper Class="pa-4 ma-2 mud-elevation-20" Outlined="true" Style="@($"background:{Colors.Indigo.Darken4};height:80px;")">
+                <MudStack>
+                    <MudText Typo="Typo.h3" Style="margin:auto; margin-bottom:6px" Color="Color.Primary">@DisplayWord</MudText>
+                    <MudProgressLinear Value="DurationProgress" Max="TurnDuration"><MudText Typo="Typo.h5" Color="Color.Primary">@DurationProgress</MudText></MudProgressLinear>
+                </MudStack>
+            </MudPaper>
+            <MudPaper Class="pa-4 ma-2 mud-elevation-20" Outlined="true" Style="@($"background:{Colors.Indigo.Darken4}; height:520px")">
+                <div @ref="_CanvasContainer">
+                    <Canvas width="720" height="480" @ref="_Canvas" style="border: 3px solid black;" @onmousedown="OnMouseDownCanvas" @onmouseup="OnMouseUpCanvas" @onmousemove="OnMouseMoveCanvasAsync" @onmouseout="OnMouseUpCanvas"></Canvas>
+                </div>
+            </MudPaper>
+            <MudPaper Class="pa-4 ma-2 mud-elevation-20" Outlined="true" Style="@($"background:{Colors.Indigo.Darken4};height:80px;")">
+                <MudStack Row="true" Style="vertical-align:central">
+                    <button style="@($"border-radius:100%; background:{_Color.Value}; width:50px; height:50px; margin:auto; margin-left:100px; border: 2px solid black")" @onclick="ShowColor" />
+                    <MudColorPicker @ref="_Picker" ColorPickerView="ColorPickerView.Palette" DisableModeSwitch="true" PickerVariant="PickerVariant.Dialog" InputVariant="Variant.Text" ValueChanged="ChangeColor" Style="margin:auto;max-width:0px; margin-left:0px" Color="Color.Primary" InputIcon="" Palette="_CustomPalette"/>
+                    <MudSlider Step="6" ValueLabel="true" Style="margin:auto;max-width:400px; margin-right:100px" Min="6" @onchange="RefreshWidth" @bind-Value="_LineWidth" TickMarks="true" Max="60" />
+                </MudStack>
+            </MudPaper>
+        </MudStack>
+    </MudItem>
+    <MudItem xs="3">
+        <Chat Messages="Messages" OnNewMessage="NewMessage"/>
+    </MudItem>
+</MudGrid>
+<MudMessageBox @ref="_WordPicker" Title="Select a Word" >
+   <MessageContent>
+       <MudButton Variant="Variant.Outlined" @onclick="() => SendChoice(0)">
+           @WordChoice[0]
+       </MudButton>
+       <MudButton Variant="Variant.Outlined" @onclick="() => SendChoice(1)">
+           @WordChoice[1]
+       </MudButton>
+       <MudButton Variant="Variant.Outlined" @onclick="() => SendChoice(2)">
+           @WordChoice[2]
+       </MudButton>
+   </MessageContent>
+  <YesButton>
+  </YesButton>
+</MudMessageBox>
+
+@code {
+    [Parameter]
+    public string LobbyID { get; set; }
+
+    [Parameter]
+    public List<ScoreCardInfo> PlayerList { get; set; }
+
+    [Parameter]
+    public string DisplayWord { get; set; }
+
+    [Parameter]
+    public int TurnDuration { get; set; }
+
+    [Parameter]
+    public int DurationProgress { get; set; }
+
+    [Parameter]
+    public List<MessageCardInfo> Messages { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnNewMessage { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnDrawUpdate { get; set; }
+
+    [Parameter]
+    public List<string> WordChoice { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnWordSelected { get; set; }
+
+    public async Task<string> GetDrawing()
+    {
+        if (_Canvas is null)
+            return string.Empty;
+
+        return await _Canvas.ToDataURLAsync();
+    }
+
+    private async void SendChoice(int i)
+    {
+        _WordPicker.Close();
+        await OnWordSelected.InvokeAsync(WordChoice[i]);
+    }
+
+    private async void NewMessage(string message)
+    {
+        await OnNewMessage.InvokeAsync(message);
+    }
+
+    private MudColor _Color = new MudColor("#000000");
+
+    private async void RefreshWidth()
+    {
+        await _MainContext.LineWidthAsync(_LineWidth);
+    }
+
+    private async void ChangeColor(MudColor color)
+    {
+        _Color = color;
+        await _MainContext.StrokeStyleAsync(color.Value);
+        StateHasChanged();
+    }
+
+    private void ShowColor()
+    {
+        _Picker.ToggleOpen();
+        StateHasChanged();
+    }
+
+    private ElementReference _CanvasContainer;
+    private Canvas? _Canvas;
+    private Context2D? _MainContext;
+    private MudColorPicker _Picker;
+    private MudMessageBox _WordPicker;
+
+    private bool _IsMouseDown = false;
+    private bool _IsRenderRequired = true;
+
+    private int _LineWidth = 6;
+
+    private double _CanvasX;
+    private double _CanvasY;
+    private double _MouseX;
+    private double _MouseY;
+    private double _LastMouseX;
+    private double _LastMouseY;
+
+    private IEnumerable<MudColor> _CustomPalette { get; set; } = new MudColor[]
+    {
+        Colors.Shades.Black, Colors.Grey.Darken2, Colors.Grey.Default, Colors.Grey.Lighten2, Colors.Shades.White,
+        Colors.Red.Darken4, Colors.DeepOrange.Accent4, Colors.Orange.Darken4, Colors.Orange.Accent4, Colors.Brown.Default,
+        Colors.Green.Darken4, Colors.Green.Default, Colors.LightGreen.Default, Colors.Lime.Default, Colors.Yellow.Default,
+        Colors.Purple.Darken4, Colors.DeepPurple.Default, Colors.Indigo.Default, Colors.Blue.Default, Colors.LightBlue.Default,
+        Colors.Pink.Darken4, Colors.Pink.Default, Colors.Pink.Accent2, Colors.Purple.Accent2, Colors.Purple.Default
+    };
+
+    private class Position
+    {
+        public double Left { get; set; }
+        public double Top { get; set; }
+    }
+
+    protected override bool ShouldRender()
+    {
+        if (!_IsRenderRequired)
+        {
+            _IsRenderRequired = true;
+            return false;
+        }
+        return base.ShouldRender();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        _MainContext = await _Canvas.GetContext2DAsync();
+
+        await _MainContext.GlobalCompositeOperationAsync(CompositeOperation.Source_Over);
+        await _MainContext.StrokeStyleAsync(_Color.Value);
+        await _MainContext.LineWidthAsync(_LineWidth);
+        await _MainContext.LineJoinAsync(LineJoin.Round);
+        await _MainContext.LineCapAsync(LineCap.Round);
+        await _MainContext.FillStyleAsync("white");
+        await _MainContext.FillRectAsync(0, 0, 720, 480);
+
+        Position position = await js.InvokeAsync<Position>("eval", $"let e = document.querySelector('[_bl_{_CanvasContainer.Id}=\"\"]'); e = e.getBoundingClientRect(); e = {{ 'Left': e.x, 'Top': e.y }}; e");
+        (_CanvasX, _CanvasY) = (position.Left + 3, position.Top + 3);
+
+        await _WordPicker.Show();
+    }
+
+    private async void OnMouseDownCanvas(MouseEventArgs e)
+    {
+        _IsRenderRequired = false;
+        _LastMouseX = _MouseX = e.ClientX - _CanvasX;
+        _LastMouseY = _MouseY = e.ClientY - _CanvasY;
+        _IsMouseDown = true;
+
+        await DrawCanvasAsync(_LastMouseX, _LastMouseY, _MouseX, _MouseY);
+    }
+
+    private async void OnMouseUpCanvas(MouseEventArgs e)
+    {
+        _IsRenderRequired = false;
+        _IsMouseDown = false;
+
+        _LastMouseX = _MouseX = e.ClientX - _CanvasX;
+        _LastMouseY = _MouseY = e.ClientY - _CanvasY;
+
+        await DrawCanvasAsync(_LastMouseX, _LastMouseY, _MouseX, _MouseY);
+
+        string drawing = await _Canvas.ToDataURLAsync();
+        await OnDrawUpdate.InvokeAsync(drawing);
+    }
+
+    private async void OnMouseMoveCanvasAsync(MouseEventArgs e)
+    {
+        _IsRenderRequired = false;
+
+        if (!_IsMouseDown)
+            return;
+
+        _MouseX = e.ClientX - _CanvasX;
+        _MouseY = e.ClientY - _CanvasY;
+
+
+        await DrawCanvasAsync(_LastMouseX, _LastMouseY, _MouseX, _MouseY);
+        _LastMouseX = _MouseX;
+        _LastMouseY = _MouseY;
+    }
+
+    private async Task DrawCanvasAsync(double previousX, double previousY, double currentX, double currentY)
+    {
+        await using (Batch2D context = _MainContext.CreateBatch())
+        {
+            await context.BeginPathAsync();
+            await context.MoveToAsync(previousX, previousY);
+            await context.LineToAsync(currentX, currentY);
+            await context.StrokeAsync();
+        }
+    }
+}

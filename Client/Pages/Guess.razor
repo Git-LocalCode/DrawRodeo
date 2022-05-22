@@ -1,0 +1,53 @@
+﻿<MudGrid>
+    <MudItem xs="3">
+        <PlayerList LobbyID="@LobbyID" Players="PlayerList" />
+    </MudItem>
+    <MudItem xs="6">
+        <MudStack Style="width:780px; margin-left:auto; margin-right:auto;">
+            <MudPaper Class="pa-4 ma-2 mud-elevation-20" Outlined="true" Style="@($"background:{Colors.Indigo.Darken4};height:80px;")">
+                <MudStack>
+                    <MudText Typo="Typo.h3" Style="margin:auto; margin-bottom:6px" Color="Color.Primary">@DisplayWord</MudText>
+                    <MudProgressLinear Value="DurationProgress" Max="TurnDuration"><MudText Typo="Typo.h5" Color="Color.Primary">@DurationProgress</MudText></MudProgressLinear>
+                </MudStack>
+            </MudPaper>
+
+            <MudPaper Class="pa-4 ma-2 mud-elevation-20" Outlined="true" Style="@($"background:{Colors.Indigo.Darken4};height:520px")">
+                <img src="@Drawing" style="border: 3px solid black;" />
+            </MudPaper>
+        </MudStack>
+    </MudItem>
+    <MudItem xs="3">
+        <Chat Messages="Messages" OnNewMessage="NewMessage"/>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public string LobbyID { get; set; }
+
+    [Parameter]
+    public List<ScoreCardInfo> PlayerList { get; set; }
+
+    [Parameter]
+    public string DisplayWord { get; set; }
+
+    [Parameter]
+    public int TurnDuration { get; set; }
+
+    [Parameter]
+    public int DurationProgress { get; set; }
+
+    [Parameter]
+    public string Drawing { get; set; }
+
+    [Parameter]
+    public List<MessageCardInfo> Messages { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnNewMessage { get; set; }
+
+    private async void NewMessage(string message)
+    {
+        await OnNewMessage.InvokeAsync(message);
+    }
+}
